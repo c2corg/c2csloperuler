@@ -1,0 +1,231 @@
+% o README
+%
+%     These  rulers have  been  designed using  LaTeX  and the  PGFPlots
+%     package by  Christian Feuersanger to  measure slope on  a 1:25,000
+%     scale or 1:50,000 topographic map.
+%
+%     Slope  is determined  by  comparing the  distance between  contour
+%     lines of  the map  with the  reference lines on  the edges  of the
+%     ruler.  The top  border of the ruler is  designed to measure slope
+%     with  a 20~meter  contour  interval.  The  bottom border  measures
+%     slope with a 50~meter contour interval.
+%
+%     You should print this ruler  on white or transparent paper, taking
+%     care of  deactivating any scaling options.  Check  the actual size
+%     of the ruler in centimeters on the right border.
+%
+% o COPYRIGHT NOTICE
+%
+%     Copyright (C) 2013 Emmanuel Vazquez
+%
+%     Version: 2.0
+%
+%     Author:  Emmanuel Vazquez  <emmanuel.vazquez@free.fr>
+%
+%     URL:
+%
+% o COPYING PERMISSION STATEMENT
+% 
+%    This file is licensed under a Creative Commons Attribution -
+%    NonCommercial 3.0 Unported License.
+%
+%    * You are free:
+%      - to Share      -- to copy, distribute and transmit the work
+%      - to Remix      -- to adapt the work
+%
+%    * Under the following conditions:
+%      - Attribution  --  You must  attribute  the  work  in the  manner
+%                         specified by  the author or  licensor (but not
+%                         in any way that suggests that they endorse you
+%                         or your use of the work).
+%      - Noncommercial -- You may not use this work for commercial
+%                         purposes.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[a4paper,10pt]{article}
+
+\usepackage[latin1]{inputenc}
+\usepackage{arev}
+\usepackage[T1]{fontenc}
+\usepackage{pgfplots}
+\usepackage{amsmath,amsfonts}
+\usepackage{bm, bbm}
+
+\begin{document}
+\pagestyle{empty}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\printf#1{\pgfkeys{/pgf/number format/.cd,fixed,precision=2,zerofill=true}\pgfmathparse{#1}\pgfmathprintnumber{\pgfmathresult}}
+\def\printi#1{\pgfkeys{/pgf/number format/.cd,fixed,precision=0}\pgfmathparse{#1}\pgfmathprintnumber{\pgfmathresult}}
+
+\def\framew{8.5cm}
+\def\frameh{5.4cm}
+\def\lineh {1.2cm}
+\def\sline {+(0,0) -- +(0,\lineh)}
+
+%%%%%%%%%%%%%%%%%%%%%%% 1:25,000 slope ruler %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\scale{25000}
+\def\dl{20}
+\def\dh{50}
+\def\spacings {{0cm, 1.2cm, 2.4cm, 3.5cm, 4.6cm}}
+
+\begin{center}
+\begin{tikzpicture}
+  % draw the frame
+  \draw[gray, very thin] (0,0) rectangle (\framew,\frameh);
+
+  % l=20m ruler
+  \pgfkeys{/pgf/fpu=true,/pgf/fpu/output format=fixed}
+  \foreach \i/\th in {0/45, 1.1/40, 2.2/35, 3.3/30, 4.5/25}
+     \draw[very thin] (15mm+\i cm, \frameh - \lineh) \sline ++({\dl/tan(\th)/\scale*100},0) \sline
+                     +(0, 0.2cm) node[anchor=west] {\scriptsize \printi{\th}$^{\circ}$}
+                     +(0, 0.5cm) node[anchor=west] {\scriptsize \printf{\dl/tan(\th)/\scale*1000}};
+
+  % l=50m ruler
+  \foreach \i/\th in {0/45, 1.1/40, 2.2/35, 3.3/30, 4.5/25}
+     \draw[very thin] (15mm+\i cm, 0cm) \sline ++({\dh/tan(\th)/\scale*100},0) \sline
+                     +(0, \lineh - 0.2cm) node[anchor=west] {\scriptsize \printi{\th}$^{\circ}$}
+                     +(0, \lineh - 0.5cm) node[anchor=west] {\scriptsize \printf{\dh/tan(\th)/\scale*1000}};
+  \pgfkeys{/pgf/fpu=false}
+
+  % right border: cm scale
+  \def\x{(\frameh-4cm)/2}
+  \foreach \dx in {0,0.1,...,4}
+    \draw (\framew, {\x + \dx cm}) -- +(-1mm, 0); 
+  \foreach \dx in {0,0.5,...,4}
+    \draw (\framew, {\x + \dx cm}) -- +(-2mm, 0);
+  \foreach \dx in {0,...,4}
+    \draw ({\framew-2mm}, {\x + \dx cm}) node[anchor=east] {$\dx$};
+  \draw (\framew,\frameh-3mm) node[anchor=east]{\scriptsize cm};
+
+  % left border: km scale
+  \pgfkeys{/pgf/fpu=true,/pgf/fpu/output format=fixed}
+  \foreach \dx in {0,0.05,...,1}
+    \draw[very thin] (0, {\x + \dx cm/\scale*1e5}) -- +(0.7mm, 0); 
+  \foreach \dx in {0,0.1,...,1}
+    \draw (0, {\x + \dx cm/\scale*1e5}) -- +(2mm, 0); 
+  \foreach \dx in {0,0.5,...,1}
+    \draw (0, {\x + \dx cm/\scale*1e5}) -- +(3mm, 0);
+  \foreach \dx in {0,0.5,...,1}
+    \draw (3mm, {\x + \dx cm/\scale*1e5}) node[anchor=west] {$\dx$};
+  \draw (0,\frameh-3mm) node[anchor=west]{\scriptsize km};
+  \pgfkeys{/pgf/fpu=false}
+
+  % information about the ruler
+  \draw (13.5mm,\frameh/2) node[anchor=west] {\scriptsize $1:\scale$ Scale
+    Slope Ruler};
+  \draw (15mm, \frameh/2 + 12mm) -- ++(0, -2mm) -- 
+    ++(57mm,0) -- ++(0, +2mm) ;
+  \draw (\framew/2, \frameh/2 +8mm) node {\scriptsize $h=\dl\rm m$};
+
+  \draw (15mm, \frameh/2 - 12mm) -- ++(0, +2mm) -- 
+    ++(57mm,0) -- ++(0, -2mm) ;
+  \draw (\framew/2, \frameh/2 -8mm) node {\scriptsize $h=\dh\rm m$};
+  \pgftext[at=\pgfpoint{5.7cm}{\frameh/2+4mm},left] {\includegraphics[width=1.5cm]{logoc2c}};
+  \pgftext[at=\pgfpoint{5.7cm}{\frameh/2-4mm},left] {\includegraphics[width=1.5cm]{by-nc}};
+  % 0.8mm control lines
+  \draw[very thin] (15mm, 4.0cm) -- +(0, 2mm) ++(0.8mm, 0) -- +(0, 2mm);
+
+\end{tikzpicture}
+
+\vskip 1cm
+
+%%%%%%%%%%%%%%%%%%%%%%% 1:50,000 slope ruler %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\scale{50000}
+\def\dl{20}
+\def\dh{50}
+\def\spacings {{0cm, 1.2cm, 2.4cm, 3.5cm, 4.6cm}}
+
+\noindent
+\begin{tikzpicture}
+  % draw the frame
+  \draw[gray, very thin] (0,0) rectangle (\framew,\frameh);
+
+  % l=20m ruler
+  \pgfkeys{/pgf/fpu=true,/pgf/fpu/output format=fixed}
+  \foreach \i/\th in {0/45, 1.1/40, 2.2/35, 3.3/30, 4.5/25}
+     \draw[very thin] (15mm+\i cm, \frameh - \lineh) \sline ++({\dl/tan(\th)/\scale*100},0) \sline
+                     +(0, 0.2cm) node[anchor=west] {\scriptsize \printi{\th}$^{\circ}$}
+                     +(0, 0.5cm) node[anchor=west] {\scriptsize \printf{\dl/tan(\th)/\scale*1000}};
+
+  % l=50m ruler
+  \foreach \i/\th in {0/45, 1.1/40, 2.2/35, 3.3/30, 4.5/25}
+     \draw[very thin] (15mm+\i cm, 0cm) \sline ++({\dh/tan(\th)/\scale*100},0) \sline
+                     +(0, \lineh - 0.2cm) node[anchor=west] {\scriptsize \printi{\th}$^{\circ}$}
+                     +(0, \lineh - 0.5cm) node[anchor=west] {\scriptsize \printf{\dh/tan(\th)/\scale*1000}};
+  \pgfkeys{/pgf/fpu=false}
+
+  % right border: cm scale
+  \def\x{(\frameh-4cm)/2}
+  \foreach \dx in {0,0.1,...,4}
+    \draw (\framew, {\x + \dx cm}) -- +(-1mm, 0); 
+  \foreach \dx in {0,0.5,...,4}
+    \draw (\framew, {\x + \dx cm}) -- +(-2mm, 0);
+  \foreach \dx in {0,...,4}
+    \draw ({\framew-2mm}, {\x + \dx cm}) node[anchor=east] {$\dx$};
+  \draw (\framew,\frameh-3mm) node[anchor=east]{\scriptsize cm};
+
+  % left border: km scale
+  \pgfkeys{/pgf/fpu=true,/pgf/fpu/output format=fixed}
+  \foreach \dx in {0,0.05,...,2}
+    \draw[very thin] (0, {\x + \dx cm/\scale*1e5}) -- +(0.7mm, 0); 
+  \foreach \dx in {0,0.1,...,2}
+    \draw (0, {\x + \dx cm/\scale*1e5}) -- +(2mm, 0); 
+  \foreach \dx in {0,0.5,...,2}
+    \draw (0, {\x + \dx cm/\scale*1e5}) -- +(3mm, 0);
+  \foreach \dx in {0,0.5,...,2}
+    \draw (3mm, {\x + \dx cm/\scale*1e5}) node[anchor=west] {$\dx$};
+  \draw (0,\frameh-3mm) node[anchor=west]{\scriptsize km};
+  \pgfkeys{/pgf/fpu=false}
+
+  % information about the ruler
+  \draw (13.5mm,\frameh/2) node[anchor=west] {\scriptsize $1:\scale$ Scale
+    Slope Ruler};
+  \draw (15mm, \frameh/2 + 12mm) -- ++(0, -2mm) -- 
+    ++(57mm,0) -- ++(0, +2mm) ;
+  \draw (\framew/2, \frameh/2 +8mm) node {\scriptsize $h=\dl\rm m$};
+
+  \draw (15mm, \frameh/2 - 12mm) -- ++(0, +2mm) -- 
+    ++(57mm,0) -- ++(0, -2mm) ;
+  \draw (\framew/2, \frameh/2 -8mm) node {\scriptsize $h=\dh\rm m$};
+  \pgftext[at=\pgfpoint{5.7cm}{\frameh/2+4mm},left] {\includegraphics[width=1.5cm]{logoc2c}};
+  \pgftext[at=\pgfpoint{5.7cm}{\frameh/2-4mm},left] {\includegraphics[width=1.5cm]{by-nc}};
+  % 0.4mm control lines
+  \draw[very thin] (15mm, 4.0cm) -- +(0, 2mm) ++(0.4mm, 0) -- +(0, 2mm);
+
+\end{tikzpicture}
+\end{center}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\vskip 1.0cm
+\small
+
+\noindent
+These rulers have been designed  using \LaTeX{} and the PGFPlots package
+by Christian Feuers\"anger to measure  slope on a 1:25,000 or a 1:50,000
+scale  topographic map. Slope  is determined  by comparing  the distance
+between contour lines  of the map with the reference  lines on the edges
+of the ruler.  The top border  of the ruler is designed to measure slope
+with a 20~meter contour interval.  The bottom border measures slope with
+a 50~meter contour interval.  \bigskip
+
+\noindent
+You should print  this ruler on white or  transparent paper, taking care
+of deactivating any scaling options.  Check the actual size of the ruler
+in centimeters on the right border. \bigskip
+
+\noindent   \sl  These   C2C   Slope  Rulers   are   licensed  under   a
+Creative~Commons Attribution  -- NonCommercial 3.0  Unported License (CC
+BY-NC 3.0) \bigskip
+
+\noindent
+v2.0 Emmanuel Vazquez
+\end{document}
+
+%%% Local Variables:
+%%% mode:latex
+%%% End:
